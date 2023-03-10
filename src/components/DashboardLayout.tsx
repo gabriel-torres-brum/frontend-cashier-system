@@ -1,11 +1,24 @@
-import { Outlet } from "react-router-dom";
-import { CaretLeft, CaretRight, List, X } from "@phosphor-icons/react";
-import { useState } from "react";
+import { Outlet, useNavigate } from "react-router-dom";
+import { CaretLeft, CaretRight, SignOut } from "@phosphor-icons/react";
+import { useEffect, useState } from "react";
+import { useAuth } from "../hooks/useAuth";
+import { Preloader } from "./Preloader";
 
 export const DashboardLayout = () => {
+  const [loading, setLoading] = useState(true);
+  const { user, signOut } = useAuth();
   const [sideOpen, setSideOpen] = useState(false);
+  const navigate = useNavigate();
+
+  useEffect(() => setLoading(false), []);
+
+  useEffect(() => {
+    if (!user) navigate("/login");
+  }, [user]);
 
   const toggleSideOpen = (): void => setSideOpen(!sideOpen);
+
+  if (loading) return <Preloader />;
 
   return (
     <main className="flex flex-col h-full">
@@ -19,9 +32,18 @@ export const DashboardLayout = () => {
               sideOpen || "hidden sm:block"
             }`}
           >
-            {sideOpen ? <CaretLeft size={20} /> : <CaretRight size={20} />}
+            {sideOpen ? <CaretLeft /> : <CaretRight />}
           </button>
           <strong className="text-2xl tracking-wide uppercase">Sistema1</strong>
+        </div>
+        <div className="flex items-center gap-4">
+          <strong className="text-sm tracking-wide">{user?.name}</strong>
+          <button
+            onClick={signOut}
+            className="p-1 border border-gray-200 rounded-full active:scale-95"
+          >
+            <SignOut />
+          </button>
         </div>
       </header>
       <div className="h-full mt-16 flex">
